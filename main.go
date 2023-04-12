@@ -48,6 +48,7 @@ func main() {
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHandler.GetCampaign)
+	api.POST("/campaigns", authMiddleware(authService, userService), campaignHandler.CreateCampaign)
 
 	router.Run(":9888")
 
@@ -58,7 +59,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 		authHeader := c.GetHeader("Authorization")
 
 		if !strings.Contains(authHeader, "Bearer") {
-			response := helper.APIResponse("blslsl", http.StatusUnauthorized, "error", nil)
+			response := helper.APIResponse("Unauthorized", http.StatusUnauthorized, "error", nil)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 
@@ -79,7 +80,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 		token, err := authService.ValidateToken(tokenString)
 
 		if err != nil {
-			response := helper.APIResponse("Unauthokjtizsssed", http.StatusUnauthorized, "error", nil)
+			response := helper.APIResponse("Unauthorized", http.StatusUnauthorized, "error", nil)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
@@ -87,7 +88,7 @@ func authMiddleware(authService auth.Service, userService user.Service) gin.Hand
 		claim, ok := token.Claims.(jwt.MapClaims)
 
 		if !ok || !token.Valid {
-			response := helper.APIResponse("Unkhkhjauthotized", http.StatusUnauthorized, "error", nil)
+			response := helper.APIResponse("Unauthorized", http.StatusUnauthorized, "error", nil)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
